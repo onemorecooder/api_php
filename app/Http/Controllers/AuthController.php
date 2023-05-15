@@ -86,13 +86,11 @@ class AuthController extends Controller
         $token = $request->bearerToken();
 
         if (!$token) {
-            // Token no presente por inicio con Google
             Auth::logout();
 
             return redirect('/');
         }
 
-        // Decodificar token JWT y validar firma
         try {
             $payload = JWT::decode($token, config('jwt.secret'), ['HS256']);
         } catch (Exception $e) {
@@ -113,14 +111,11 @@ class AuthController extends Controller
     {
         $user = Socialite::driver('google')->user();
 
-        // Verificar si el usuario ya existe en la base de datos
         $existingUser = User::where('email', $user->getEmail())->first();
 
         if ($existingUser) {
-            // El usuario ya existe, inicia sesión con Laravel
             Auth::login($existingUser);
         } else {
-            // El usuario no existe, crear una nueva cuenta
             $newUser = new User();
             $newUser->name = $user->getName();
             $newUser->email = $user->getEmail();
@@ -129,7 +124,6 @@ class AuthController extends Controller
 
             Auth::login($newUser);
         }
-
         return redirect()->route('selectApi');
     }
 }
